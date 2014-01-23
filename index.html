@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="game.js"></script>
+    <script>
+    function Ship(position, rotation, mass, color) {
+        this.pos   = position;
+        this.rot   = rotation;
+        this.mass  = mass;
+        this.color = color;
+        
+        this.vel_rot = 0;
+        this.acc_rot = 0;
+
+        this.visible = true;
+
+        // Ship controls
+        this.controls = {
+            turn_cw: {
+                key: "E".charCodeAt(0),
+                func: (function(self) {
+                    return function() {
+                        var force = 0.1;
+                        // Angular acceleration
+                        self.acc_rot = force / self.mass;
+                    }
+                })(this),
+                func_release: (function(self) {
+                    return function(context) {
+                        self.acc_rot = 0;
+                    }
+                })(this)
+
+            },
+            turn_ccw: {
+                key: "Q".charCodeAt(0),
+                func: (function(self) {
+                    return function() {
+                        var force = 0.1;
+                        // Angular acceleration
+                        self.acc_rot = -force / self.mass;
+                    }
+                })(this),
+                func_release: (function(self) {
+                    return function(context) {
+                        self.acc_rot = 0;
+                    }
+                })(this)
+
+            },
+            forward: {
+                key: "W".charCodeAt(0),
+                func: (function(self) {
+                    return function() {
+                        var force = 0.1;
+                        var acc = force / self.mass;
+                        self.ax = acc * Math.sin(self.rot*Math.PI/180);
+                        self.ay = -acc * Math.cos(self.rot*Math.PI/180);
+                    }
+                })(this),
+                func_release: (function(self) {
+                    return function(context) {
+                        self.ax = 0;
+                        self.ay = 0;
+                    }
+                })(this)
+
+            },
+            reverse: {
+                key: "S".charCodeAt(0),
+                func: (function(self) {
+                    return function() {
+                        var force = 0.1;
+                        var acc = -force / self.mass;
+                        self.ax = acc * Math.sin(self.rot*Math.PI/180);
+                        self.ay = -acc * Math.cos(self.rot*Math.PI/180);
+                    }
+                })(this),
+                func_release: (function(self) {
+                    return function(context) {
+                        self.ax = 0;
+                        self.ay = 0;
+                    }
+                })(this)
+
+            },
+            right: {
+                key: "D".charCodeAt(0),
+                func: (function(self) {
+                    return function() {
+                        var force = 0.1;
+                        var acc = -force / self.mass;
+                        var angle = (self.rot-90)*Math.PI/180;
+                        self.ax = acc * Math.sin(angle);
+                        self.ay = -acc * Math.cos(angle);
+                    }
+                })(this),
+                func_release: (function(self) {
+                    return function(context) {
+                        self.ax = 0;
+                        self.ay = 0;
+                    }
+                })(this)
+
+            },
+            left: {
+                key: "A".charCodeAt(0),
+                func: (function(self) {
+                    return function() {
+                        var force = 0.1;
+                        var acc = -force / self.mass;
+                        var angle = (self.rot+90)*Math.PI/180;
+                        self.ax = acc * Math.sin(angle);
+                        self.ay = -acc * Math.cos(angle);
+                    }
+                })(this),
+                func_release: (function(self) {
+                    return function(context) {
+                        self.ax = 0;
+                        self.ay = 0;
+                    }
+                })(this)
+
+            },
+            rcs:  {
+                key: "C".charCodeAt(0),
+                func: (function(self) {
+                    return function(context) {
+                        var force = 0.1;
+                        var acc = force / self.mass;
+                        var mag = Math.sqrt(Math.pow(self.vx, 2) + Math.pow(self.vy, 2));
+                        
+                        if (mag != 0) {
+                            self.ax = -self.vx / mag * acc;
+                            self.ay = -self.vy / mag * acc;
+                        }
+
+                        if (self.vel_rot != 0)
+                            self.acc_rot = -(self.vel_rot / Math.abs(self.vel_rot)) * force / self.mass;
+                        //self.acc_rot = -0.1 * self.vel_rot / context.dt;
+                    }
+                })(this),
+                func_release: (function(self) {
+                    return function(context) {
+                        self.ax = 0;
+                        self.ay = 0;
+                        self.acc_rot = 0;
+                    }
+                })(this)
+            }
+        }
+
+        // Vertices of the ship, relative to pos
+        this.vertices = [
+            [0, -20],
+            [10, 10],
+            [-10, 10],
+            [0, -20]
+        ];
+
+        this.draw = function(ctx) {
+            if (this.visible) {
+                //ctx.save();
+                ctx.strokeStyle = this.color;
+                ctx.beginPath();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rot*Math.PI/180);
+                for (var i = 0; i < this.vertices.length; i++) {
+                    var x = this.vertices[i][0];
+                    var y = this.vertices[i][1];
+
+                    if (i == 0)
+                        ctx.moveTo(x, y);
+                    else
+                        ctx.lineTo(x, y);
+
+                }
+                ctx.stroke();
+                ctx.rotate(-this.rot*Math.PI/180);
+                ctx.translate(-this.x, -this.y);
+                //ctx.restore();
+            }
+        }
+
+        this.update = function(context) {
+            this.updatePos(context.dt);
+
+            this.vel_rot += this.acc_rot * context.dt;
+            this.rot += this.vel_rot * context.dt;
+            this.rot %= 360; 
+            //this.acc_rot = 0;
+        }
+    
+    }
+    
+    // Inherit from Sprite()
+    Ship.prototype = new Sprite();
+    Ship.prototype.constructor = Ship;
+
+    // MAKE PARTICLES/PROJECTILES
+
+    var ships = [];
+    ships.push(
+        new Ship(
+            [window.innerWidth/2, window.innerHeight/2], 
+            0,
+            800,
+            "white" 
+        )
+    );
+    
+    window.onresize = function() {
+        var c    = document.getElementById("main");
+        c.width  = window.innerWidth;
+        c.height = window.innerHeight;
+    }
+
+    window.onload = function() {
+        window.onresize();
+        // Make new game object
+        var g = new Game();
+        g.sprites = ships;
+        g.start();
+    };
+    </script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        #main {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="main" width="400" height="400"></canvas>
+</body>
+</html>
