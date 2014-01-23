@@ -1,4 +1,6 @@
 function Sprite(pos) {
+    this._delete  = false;
+    this._birth   = (function() { return (new Date()).getTime(); })(); 
     this.pos = pos;
     this.vel = [0, 0];
     this.acc = [0, 0];
@@ -25,7 +27,6 @@ function Sprite(pos) {
         this.x += this.vx * dt;
         this.y += this.vy * dt; 
         
-        this.acc = [0,0];
 
     }
 
@@ -47,6 +48,7 @@ function Game() {
     this._intervalId  = null;
     this._lastTime    = (new Date()).getTime();
     this._currentTime = (new Date()).getTime();
+    this._debug       = true;
 
 
     this.fps      = 30;
@@ -61,6 +63,10 @@ function Game() {
     var width = this.width;
     var height = this.height;
    
+    this._debugMessage = function() {
+        return String(this.sprites.length);
+    }
+
     this.draw = function() {
         if (this.canvas.getContext) {
             var ctx = this.canvas.getContext("2d");
@@ -74,6 +80,13 @@ function Game() {
             for (var i = 0; i < this.sprites.length; i++) {
                 var s = this.sprites[i];
                 s.draw(ctx);
+            }
+
+            // Debug stuff
+            if (this._debug) {
+                ctx.font = "12px Courier";
+                ctx.fillStyle = "white";
+                ctx.fillText(this._debugMessage(), 10, 15);
             }
         }
     }
@@ -120,8 +133,10 @@ function Game() {
         // Calculate new positions
         for (var i = 0; i < this.sprites.length; i++) {
             this.sprites[i].update(context);
+            if (this.sprites[i]._delete)
+                this.sprites.splice(i, 1);
         }
-
+        
     }
 
     this.run = function() {
@@ -129,10 +144,16 @@ function Game() {
         this._currentTime = (new Date()).getTime();
 
         var context = {
-            dt: this._currentTime - this._lastTime
+            dt: this._currentTime - this._lastTime,
+            time: this._currentTime,
+            game: this
         };
 
         this.update(context);
+
+        if (context.game != this)
+            this = context.game;
+
         this.draw();
     }
 
