@@ -70,12 +70,9 @@ function Game() {
     this.draw = function() {
         if (this.canvas.getContext) {
             var ctx = this.canvas.getContext("2d");
-            ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0 , 0);
-            //ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            ctx.restore();
+            
+            if (this.hasOwnProperty("drawBackground"))
+                this.drawBackground(ctx);
 
             for (var i = 0; i < this.sprites.length; i++) {
                 var s = this.sprites[i];

@@ -216,10 +216,10 @@
                                 new Particle(
                                     self.gunPos(), 
                                     [
-                                        self.vx+0.1*Math.cos(self.rot), 
-                                        self.vy+0.1*Math.sin(self.rot)
+                                        self.vx+0.3*Math.cos(self.rot), 
+                                        self.vy+0.3*Math.sin(self.rot)
                                     ], 
-                                    1, 
+                                    2, 
                                     5, 
                                     "#FF6A00", 
                                     5000
@@ -278,6 +278,19 @@
             this.vel_rot += this.acc_rot * context.dt;
             this.rot += this.vel_rot * context.dt;
             this.rot %= 360; 
+
+            if (this.x < 0 ) {
+                this.x = context.game.width;
+            }
+            if (this.x > context.game.width ) {
+                this.x = 0;
+            }
+            if (this.y < 0 ) {
+                this.y = context.game.height;
+            }
+            if (this.y > context.game.height ) {
+                this.y = 0;
+            }
             
             //this.acc_rot = 0;
         }
@@ -345,7 +358,39 @@
         window.onresize();
         // Make new game object
         var g = new Game();
+        
         g.sprites = ships.concat(pts);
+        
+        g.background = null;
+        // Background function
+        g.drawBackground = function(ctx) {
+            ctx.save();
+            if (!this.background) {
+                ctx.setTransform(1, 0, 0, 1, 0 , 0);
+                //ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Dust
+                this.background = ctx.getImageData(0, 0, this.width, this.height); 
+                var density = 50;
+                for (var i = 0; i < this.background.data.length; i++) {
+                    var prob = Math.random();
+                    if (prob < 0.00001) {
+                        var gray = 255;
+                        this.background.data[i]   = gray;
+                        this.background.data[++i] = gray;
+                        this.background.data[++i] = gray;
+                        this.background.data[++i] = 255;
+                    }
+                    
+                }
+            }
+            ctx.putImageData(this.background, 0, 0);
+
+            ctx.restore();
+            
+        }
         g.start();
     };
     </script>
