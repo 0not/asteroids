@@ -5,6 +5,36 @@
     <title></title>
     <script src="game.js"></script>
     <script>
+    function Weapon(name, cooldown) {
+        this.name     = name;
+        this.cooldown = 100;
+        this.timer    = (new Date()).getTime(),
+        this.func_press = function(){}
+        this.func = function(ship, context) { 
+            if (context.time - this.timer > this.cooldown) {
+                context.game.sprites.push(
+                    new Particle(
+                        ship.gunPos(), 
+                        [
+                            ship.vx+0.3*Math.cos(ship.rot), 
+                            ship.vy+0.3*Math.sin(ship.rot)
+                        ], 
+                        2, 
+                        5, 
+                        "#FF6A00", 
+                        5000
+                    )
+                );
+                // Explicitly set birth time,
+                // bug in Sprites._birth or something
+                context.game.sprites[context.game.sprites.length - 1]._birth = (new Date()).getTime();
+                this.timer = context.time;
+            }
+        }
+            
+        this.func_release = function() {}
+    }
+
     function Ship(position, rotation, mass, color) {
         this.pos   = position;
         this.rot   = rotation;
@@ -19,10 +49,12 @@
             turn: 0.006
         };
 
+        this.weapons = [new Weapon("Main Cannon", 100)];
+
         this.visible = true;
 
         this.shotTimer = (new Date()).getTime();
-        this.shotPeriod = 500;
+        this.shotPeriod = 5;
 
         this.gunPos = function() {
             var angle = this.rot;
@@ -209,29 +241,12 @@
 
             shoot:  {
                 key: " ".charCodeAt(0),
-                func: (function(self) {
-                    return function(context) {
-                        if (context.time - self.shotTimer > self.shotPeriod) {
-                            context.game.sprites.push(
-                                new Particle(
-                                    self.gunPos(), 
-                                    [
-                                        self.vx+0.3*Math.cos(self.rot), 
-                                        self.vy+0.3*Math.sin(self.rot)
-                                    ], 
-                                    2, 
-                                    5, 
-                                    "#FF6A00", 
-                                    5000
-                                )
-                            );
-                            // Explicitly set birth time,
-                            // bug in Sprites._birth or something
-                            context.game.sprites[context.game.sprites.length - 1]._birth = (new Date()).getTime();
-                            self.shotTimer = context.time;
+                func: 
+                    (function(self) {
+                        return function(context) {
+                            self.weapons[0].func(self, context);
                         }
-                    }
-                })(this),
+                    })(this),
                 func_release: (function(self) {
                     return function(context) {
 
@@ -325,6 +340,20 @@
             this.updatePos(context.dt);
             if (context.time - this._birth > this.lifetime)
                 this._delete = true;
+            
+            if (this.x < 0 ) {
+                this.x = context.game.width;
+            }
+            if (this.x > context.game.width ) {
+                this.x = 0;
+            }
+            if (this.y < 0 ) {
+                this.y = context.game.height;
+            }
+            if (this.y > context.game.height ) {
+                this.y = 0;
+            }
+
         }
     
     }
