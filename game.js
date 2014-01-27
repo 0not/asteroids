@@ -51,7 +51,7 @@ function Game() {
     this._debug       = true;
 
 
-    this.fps      = 30;
+    this.fps      = 60;
     this.stopped  = false;
     this.canvas   = document.getElementById("main");
     this.width    = this.canvas.width;
