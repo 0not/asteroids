@@ -53,9 +53,11 @@ function Game() {
 
     this.fps      = 60;
     this.stopped  = false;
-    this.canvas   = document.getElementById("main");
-    this.width    = this.canvas.width;
-    this.height   = this.canvas.height;
+    this.canvas   = {
+        "main": document.getElementById("main")
+    };
+    this.width    = this.canvas.main.width;
+    this.height   = this.canvas.main.height;
     this.keys     = {};
     this.keysDown = {};
     this.sprites  = [];
@@ -68,8 +70,8 @@ function Game() {
     }
 
     this.draw = function() {
-        if (this.canvas.getContext) {
-            var ctx = this.canvas.getContext("2d");
+        if (this.canvas.main.getContext) {
+            var ctx = this.canvas.main.getContext("2d");
             
             if (this.hasOwnProperty("drawBackground"))
                 this.drawBackground(ctx);
