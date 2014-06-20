@@ -349,12 +349,62 @@ function Particle(position, velocity, size, mass, color, lifetime) {
 
     }
 
+    this.collision = function(sprite) {
+        this._delete = true;
+    };
+
 }
 
 // Inherit from Sprite()
 Particle.prototype = new Sprite();
 Particle.prototype.constructor = Particle;
 
+// Asteroids
+function Asteroid(position, velocity, size) {
+    this.pos  = position;
+    this.vel  = velocity;
+    this.size = size;          // "Radius"
+
+    this.visible  = true;
+
+    this.draw = function(ctx) {
+        if (this.visible) {
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            ctx.arc(this.x, this.y, this.size, 0, 2*Math.PI);
+            ctx.fill();
+        }
+    }
+
+    this.update = function(context) {
+        this.updatePos(context.dt);
+        
+        if (this.x < 0 ) {
+            this.x = context.game.width;
+        }
+        if (this.x > context.game.width ) {
+            this.x = 0;
+        }
+        if (this.y < 0 ) {
+            this.y = context.game.height;
+        }
+        if (this.y > context.game.height ) {
+            this.y = 0;
+        }
+
+    }
+
+    this.collision = function(sprite) {
+        this.size -= 1;
+        // Delete ahead
+        if (this.size - 1 <= 0)
+            this._delete = true;
+    };
+}
+
+// Inherit from Sprite()
+Asteroid.prototype = new Sprite();
+Asteroid.prototype.constructor = Asteroid;
 
 function Map() {
     
@@ -373,6 +423,15 @@ ships.push(
 //ships[0].rot = -Math.PI/2;
 
 var pts = [];
+for (var i = 0; i < 10; i++) {
+    pts.push(
+        new Asteroid(
+            [Math.round(Math.random() * window.innerWidth), Math.round(Math.random() * window.innerWidth)], 
+            [(Math.random() - 0.5)*0.1, (Math.random() - 0.5)*0.1], 
+            Math.random()*50
+        )
+    );
+}
 //pts.push(new Particle([300, 300], 1, "#FF6A00", 5000));
 //pts[0].vy = -0.1;
 window.onresize = function() {
@@ -385,6 +444,7 @@ window.onresize = function() {
 }
 
 window.onload = function() {
+    // Force calculation of correct parameters
     window.onresize();
     // Make new game object
     var g = new Game();

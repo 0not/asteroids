@@ -1,9 +1,10 @@
 function Sprite(pos) {
-    this._delete  = false;
-    this._birth   = (function() { return (new Date()).getTime(); })(); 
+    this._delete = false;
+    this._birth  = (function() { return (new Date()).getTime(); })(); 
     this.pos = pos;
     this.vel = [0, 0];
     this.acc = [0, 0];
+    this.size = 0;
     this.visible = true;
     this.__defineGetter__("x", function()  { return this.pos[0]; });
     this.__defineGetter__("y", function()  { return this.pos[1] });
@@ -129,13 +130,44 @@ function Game() {
                 this.keys[key].func(context);
         }
         
-        // Calculate new positions
+        // Calculate new positions & collisions
         for (var i = 0; i < this.sprites.length; i++) {
-            this.sprites[i].update(context);
-            if (this.sprites[i]._delete)
+            var spi = this.sprites[i];
+            // Update position
+            spi.update(context);
+            if (spi._delete)
                 this.sprites.splice(i, 1);
+
+            // Don't check for size 0 particles
+            if (spi.size <= 0)
+                continue;
+
+            // Calculate collisions
+            for (var j = 0; j < this.sprites.length; j++) {
+                if (j == i)
+                    continue;
+
+                var spj = this.sprites[j];
+
+                // Don't check for size 0 particles
+                if (spj.size <= 0)
+                    continue;
+
+                // Distance squared
+                var dist2 = Math.pow(spi.x - spj.x, 2) + Math.pow(spi.y - spj.y, 2);
+                // If distance is less than or equal to the summed radii squared 
+                // (since we don't take the square root of distance), then we
+                // detected a collision
+                if (dist2 <= Math.pow(spi.size + spj.size, 2)) {
+                    if (spi.hasOwnProperty("collision"))
+                        spi.collision(spj);
+
+                    if (spj.hasOwnProperty("collision"))
+                        spj.collision(spi);
+                }
+                
+            }
         }
-        
     }
 
     this.run = function() {
@@ -150,8 +182,8 @@ function Game() {
 
         this.update(context);
 
-        if (context.game != this)
-            this = context.game;
+        //if (context.game != this)
+        //    this = context.game;
 
         this.draw();
     }
