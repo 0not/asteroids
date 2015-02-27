@@ -63,6 +63,30 @@ function Ship(position, rotation, mass, color) {
 
     // Ship controls
     this.controls = {
+        // Increase rate of fire
+        decrease_cooldown: {
+            key: "L".charCodeAt(0),
+            func: (function(self) {
+                return function() {
+                    if (self.weapons[0].cooldown > 5) {
+                        self.weapons[0].cooldown--;
+                    }
+                }
+            })(this),
+            func_release: (function(self) {})(this)
+        },
+        // Decrease rate of fire
+        increase_cooldown: {
+            key: "K".charCodeAt(0),
+            func: (function(self) {
+                return function() {
+                    if (self.weapons[0].cooldown < 10000) {
+                        self.weapons[0].cooldown++;
+                    }
+                }
+            })(this),
+            func_release: (function(self) {})(this)
+        },
         turn_cw: {
             key: "E".charCodeAt(0),
             func: (function(self) {

@@ -87,6 +87,7 @@ function Game() {
             // Debug stuff
             if (this._debug) {
                 ctx.fillText("Objects: " + this._debugMessage(), 10, 15);
+                ctx.fillText("Cooldown: " + this.sprites[0].weapons[0].cooldown, 100, 15);
             }
             // Print keys
            ctx.fillText("W,A,S,D - Translation", 10, 30); 
@@ -94,6 +95,7 @@ function Game() {
            ctx.fillText("X - Kill Translation", 10, 60); 
            ctx.fillText("R - Kill Rotation", 10, 75); 
            ctx.fillText("C - Kill Trans. & Rot.", 10, 90); 
+           ctx.fillText("K,L - Inc./Dec. Cooldown", 10, 105); 
         }
     }
 
@@ -111,7 +113,7 @@ function Game() {
                         this.keys[s.controls[k].key] = {
                             press: s.controls[k].func_press ? s.controls[k].func_press : function() {}, 
                             func: s.controls[k].func,
-                            release: s.controls[k].func_release
+                            release: s.controls[k].func_release ? s.controls[k].func_release : function() {}
                         }
                     }
                 }
