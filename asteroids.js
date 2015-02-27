@@ -364,15 +364,16 @@ function Asteroid(position, velocity, size) {
     this.pos  = position;
     this.vel  = velocity;
     this.size = size;          // "Radius"
+    this.mass = 100 * size;
 
     this.visible  = true;
 
     this.draw = function(ctx) {
         if (this.visible) {
             ctx.beginPath();
-            ctx.fillStyle = "white";
+            ctx.strokeStyle = "white";
             ctx.arc(this.x, this.y, this.size, 0, 2*Math.PI);
-            ctx.fill();
+            ctx.stroke();
         }
     }
 
@@ -395,6 +396,11 @@ function Asteroid(position, velocity, size) {
     }
 
     this.collision = function(sprite) {
+        // For now, asteroids don't collide
+        if (sprite.constructor.name == "Asteroid") {
+            return;
+        }
+
         this.size -= 1;
         // Delete ahead
         if (this.size - 1 <= 0)

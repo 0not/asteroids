@@ -82,12 +82,18 @@ function Game() {
                 s.draw(ctx);
             }
 
+            ctx.font = "12px Courier";
+            ctx.fillStyle = "white";
             // Debug stuff
             if (this._debug) {
-                ctx.font = "12px Courier";
-                ctx.fillStyle = "white";
-                ctx.fillText(this._debugMessage(), 10, 15);
+                ctx.fillText("Objects: " + this._debugMessage(), 10, 15);
             }
+            // Print keys
+           ctx.fillText("W,A,S,D - Translation", 10, 30); 
+           ctx.fillText("Q,E - Rotation", 10, 45); 
+           ctx.fillText("X - Kill Translation", 10, 60); 
+           ctx.fillText("R - Kill Rotation", 10, 75); 
+           ctx.fillText("C - Kill Trans. & Rot.", 10, 90); 
         }
     }
 
