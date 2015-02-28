@@ -15,7 +15,7 @@ function Weapon(name, cooldown) {
                     2, 
                     5, 
                     "#FF6A00", 
-                    5000
+                    2000
                 )
             );
             // Explicitly set birth time,
@@ -33,7 +33,9 @@ function Ship(position, rotation, mass, color) {
     this.rot   = rotation;
     this.mass  = mass;
     this.color = color;
-    
+    // Hardcoded size, needed for collisions. Comment out for invincible ship
+    this.size = 12;   
+
     this.vel_rot = 0;
     this.acc_rot = 0;
 
@@ -41,6 +43,16 @@ function Ship(position, rotation, mass, color) {
         main: 0.1,
         turn: 0.006
     };
+
+    // Insta-death on collision!
+    this.collision = function () {
+        this.pos = [window.innerWidth/2, window.innerHeight/2];
+        this.rot = 0;
+        this.vel_rot = 0;
+        this.acc_rot = 0;
+        this.vel = [0, 0];
+        this.acc = [0, 0];
+    }
 
     this.weapons = [new Weapon("Main Cannon", 100)];
 
@@ -421,7 +433,8 @@ function Asteroid(position, velocity, size) {
 
     this.collision = function(sprite) {
         // For now, asteroids don't collide
-        if (sprite.constructor.name == "Asteroid") {
+        if (sprite.constructor.name == "Asteroid" ||
+            sprite.constructor.name == "Ship") {
             return;
         }
 
