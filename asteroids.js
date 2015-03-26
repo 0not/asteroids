@@ -480,7 +480,7 @@ var genAsteroids = function(num) {
     return arr;
 };
 
-pts = genAsteroids(1);
+pts = genAsteroids(10);
 //pts.push(new Particle([300, 300], 1, "#FF6A00", 5000));
 //pts[0].vy = -0.1;
 window.onresize = function() {
