@@ -466,15 +466,21 @@ ships.push(
 //ships[0].rot = -Math.PI/2;
 
 var pts = [];
-for (var i = 0; i < 10; i++) {
-    pts.push(
-        new Asteroid(
-            [Math.round(Math.random() * window.innerWidth), Math.round(Math.random() * window.innerWidth)], 
-            [(Math.random() - 0.5)*0.1, (Math.random() - 0.5)*0.1], 
-            Math.random()*50
-        )
-    );
-}
+var genAsteroids = function(num) {
+    var arr = [];
+    for (var i = 0; i < num; i++) {
+        arr.push(
+            new Asteroid(
+                [Math.round(Math.random() * window.innerWidth), Math.round(Math.random() * window.innerWidth)], 
+                [(Math.random() - 0.5)*0.1, (Math.random() - 0.5)*0.1], 
+                Math.random()*50
+            )
+        );
+    }
+    return arr;
+};
+
+pts = genAsteroids(1);
 //pts.push(new Particle([300, 300], 1, "#FF6A00", 5000));
 //pts[0].vy = -0.1;
 window.onresize = function() {
@@ -545,7 +551,11 @@ window.onload = function() {
         ctx.restore();
         
     }
-    g.start();
+    g.start(function() {
+        if (g.sprites.length == 1) {
+            g.sprites = g.sprites.concat(genAsteroids(10));
+        }
+    });
 };
 
 

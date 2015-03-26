@@ -196,11 +196,15 @@ function Game() {
         this.draw();
     }
 
-    this.start = function() {
+    this.start = function(beforeRun, afterRun) {
         this._intervalId = setInterval(
             (function(self) {
                 return function() {
+                    if (typeof beforeRun === "function")
+                        beforeRun();
                     self.run();
+                    if (typeof afterRun === "function")
+                        afterRun();
                 }
             })(this), 
             1000 / this.fps
